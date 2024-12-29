@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>حجز الفلل الفاخرة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2C3E50;
+            --accent-color: #E74C3C;
+            --background-color: #F8F9FA;
+            --card-background: #FFFFFF;
+            --text-color: #2C3E50;
+            --border-radius: 16px;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 120px;
+        }
+
+        .villa-card {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        /* Gallery Styles */
+        .gallery {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+            background: #eee;
+        }
+
+        .gallery-container {
+            height: 100%;
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            position: relative;
+        }
+
+        .gallery-image {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-dots {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 1;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            transition: 0.3s;
+        }
+
+        .dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        /* Villa Info and Booking Styles */
+        .villa-info {
+            padding: 20px;
+        }
+
+        .villa-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .villa-location {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #F8FAFC;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .booking-section {
+            padding: 20px;
+        }
+
+        .date-input-group {
+            margin-bottom: 16px;
+        }
+
+        .date-label {
+            display: block;
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .date-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 16px;
+            background: #F8FAFC;
+        }
+</style>
+</head>
+    <style>
+        /* Price Summary Styles */
+        .price-summary {
+            background: #F8FAFC;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px 0;
+            margin-bottom: 40px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: #666;
+        }
+
+        .total-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        /* WhatsApp Button */
+        .social-buttons {
+            position: fixed;
+            bottom: 100px;
+            right: 16px;
+            z-index: 98;
+            padding: 16px;
+        }
+
+        .whatsapp-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #25D366;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+            padding: 12px;
+        }
+
+        .whatsapp-button img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .whatsapp-button:hover {
+            transform: scale(1.05);
+        }
+
+        .whatsapp-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 12px;
+            z-index: 99;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            height: 85px;
+        }
+
+        .book-button, .reset-button {
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .book-button {
+            flex: 2;
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .reset-button {
+            flex: 1;
+            background: #FF4444;
+            color: white;
+        }
+
+        .book-button:disabled, .reset-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .book-button:active, .reset-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Legal Information Styles */
+        .legal-info {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 100px;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+
+        .legal-info p {
+            margin: 5px 0;
+        }
+
+        .legal-info .label {
+            color: #999;
+            margin-left: 5px;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding-bottom: 120px;
+            }
+
+            .gallery {
+                height: 250px;
+            }
+
+            .social-buttons {
+                bottom: 90px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .social-buttons {
+                bottom: 85px;
+            }
+
+            .action-buttons {
+                height: 75px;
+            }
+        }
+    </style>
+    <body>
+        <div class="container">
+            <div class="villa-card">
+                <div class="gallery">
+                    <div class="gallery-container" id="galleryContainer">
+                        <img src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=800" alt="شاليه فاخر" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=800" alt="مسبح خاص" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?w=800" alt="صالة فاخرة" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800" alt="جلسة خارجية" class="gallery-image">
+                    </div>
+                    <div class="gallery-dots" id="galleryDots"></div>
+                </div>
+
+                <div class="villa-info">
+                    <h1 class="villa-title">فيلا توباز الفاخرة</h1>
+                    <div class="villa-location">
+                        <span>📍</span>
+                        <span>الرياض، العمارية</span>
+                    </div>
+                    <div class="features">
+                        <div class="feature">🏊‍♂️ مسبح خاص</div>
+                        <div class="feature">🚗 موقف خاص</div>
+                        <div class="feature">📶 واي فاي</div>
+                        <div class="feature">🌡️ تكييف مركزي</div>
+                    </div>
+                </div>
+
+                <div class="booking-section">
+                    <div class="date-input-group">
+                        <label class="date-label">تاريخ الوصول</label>
+                        <input type="date" id="startDate" class="date-input">
+                    </div>
+                    <div class="date-input-group">
+                        <label class="date-label">تاريخ المغادرة</label>
+                        <input type="date" id="endDate" class="date-input">
+                    </div>
+
+                    <div class="price-summary">
+                        <div class="price-row">
+                            <span>السعر الأساسي</span>
+                            <span>250 ر.س</span>
+                        </div>
+                        <div class="price-row">
+                            <span>سعر نهاية الأسبوع</span>
+                            <span>500 ر.س</span>
+                        </div>
+                        <div class="total-price">
+                            <span>الإجمالي</span>
+                            <span id="totalPrice">0 ر.س</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="social-buttons">
+                <button class="whatsapp-button" onclick="window.open('https://wa.me/966582692285', '_blank')">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/767px-WhatsApp.svg.png" alt="WhatsApp">
+                </button>
+            </div>
+
+            <div class="action-buttons">
+                <button class="book-button" id="bookButton" disabled>احجز الآن</button>
+                <button class="reset-button" id="resetDates" disabled>إعادة</button>
+            </div>
+
+            <div class="legal-info">
+                <p><span class="label">الرقم الضريبي:</span> 310632549800003</p>
+                <p><span class="label">رقم السجل التجاري:</span> 1010947523</p>
+            </div>
+        </div>
+        <script>
+            // Check if Luxon is loaded and initialize app
+            if (typeof luxon === 'undefined') {
+                console.error('Luxon library not loaded. Loading from CDN...');
+                const script = document.createElement('script');
+                script.src = 'https://moment.github.io/luxon/global/luxon.min.js';
+                script.onload = initializeApp;
+                document.head.appendChild(script);
+            } else {
+                initializeApp();
+            }
+
+            function initializeApp() {
+                // Core variables
+                const DateTime = luxon.DateTime;
+                const basePrice = 250;
+                const weekendMultiplier = 2;
+                const whatsappNumber = "966582692285";
+                let currentImageIndex = 0;
+
+                // Cache DOM elements
+                const elements = {
+                    startDate: document.getElementById('startDate'),
+                    endDate: document.getElementById('endDate'),
+                    totalPrice: document.getElementById('totalPrice'),
+                    resetButton: document.getElementById('resetDates'),
+                    bookButton: document.getElementById('bookButton'),
+                    galleryContainer: document.getElementById('galleryContainer'),
+                    galleryDots: document.getElementById('galleryDots')
+                };
+
+                // Initialize date inputs
+                function initializeDateInputs() {
+                    const today = DateTime.now().toFormat('yyyy-MM-dd');
+                    elements.startDate.min = today;
+                    elements.endDate.min = today;
+
+                    elements.startDate.addEventListener('change', handleDateChange);
+                    elements.endDate.addEventListener('change', handleDateChange);
+                    elements.resetButton.addEventListener('click', handleReset);
+                    elements.bookButton.addEventListener('click', handleBooking);
+                }
+
+                // Calculate and display price
+                function calculateAndDisplayPrice(startDate, endDate) {
+                    let totalPrice = 0;
+                    let daysCount = 0;
+                    let weekendDaysCount = 0;
+                    let weekdaysCount = 0;
+
+                    if (startDate && endDate) {
+                        let currentDate = startDate;
+                        while (currentDate <= endDate) {
+                            if (currentDate.weekday >= 4) { // Thursday, Friday, Saturday
+                                weekendDaysCount++;
+                                totalPrice += basePrice * weekendMultiplier;
+                            } else {
+                                weekdaysCount++;
+                                totalPrice += basePrice;
+                            }
+                            currentDate = currentDate.plus({ days: 1 });
+                            daysCount++;
+                        }
+                    }
+
+                    elements.totalPrice.textContent = `${totalPrice.toLocaleString()} ر.س`;
+                    elements.totalPrice.dataset.totalPrice = totalPrice;
+                    elements.totalPrice.dataset.daysCount = daysCount;
+                    elements.totalPrice.dataset.weekendDays = weekendDaysCount;
+                    elements.totalPrice.dataset.weekdays = weekdaysCount;
+
+                    elements.bookButton.disabled = totalPrice === 0;
+                    elements.resetButton.disabled = totalPrice === 0;
+                }
+
+                // Handle date changes
+                function handleDateChange() {
+                    try {
+                        const startDate = DateTime.fromISO(elements.startDate.value);
+                        const endDate = DateTime.fromISO(elements.endDate.value);
+
+                        if (startDate.isValid && endDate.isValid) {
+                            if (endDate < startDate) {
+                                alert('تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول');
+                                elements.endDate.value = '';
+                                calculateAndDisplayPrice(null, null);
+                                return;
+                            }
+                            calculateAndDisplayPrice(startDate, endDate);
+                        }
+                    } catch (error) {
+                        console.error('Error in date selection:', error);
+                    }
+                }
+
+                // Handle booking
+                function handleBooking(event) {
+                    event.preventDefault();
+
+                    if (!elements.startDate.value || !elements.endDate.value) {
+                        alert('الرجاء اختيار تواريخ الحجز');
+                        return;
+                    }
+
+                    const button = elements.bookButton;
+                    button.disabled = true;
+                    button.textContent = 'جاري التحويل...';
+
+                    const totalPrice = elements.totalPrice.dataset.totalPrice;
+                    const daysCount = elements.totalPrice.dataset.daysCount;
+                    const weekendDays = elements.totalPrice.dataset.weekendDays;
+                    const weekdays = elements.totalPrice.dataset.weekdays;
+
+                    const message = 
+        `فيلا توباز الفاخرة - طلب حجز
+        ━━━━━━━━━━━━━━
+        📅 من: ${formatArabicDate(elements.startDate.value)}
+        📅 إلى: ${formatArabicDate(elements.endDate.value)}
+        ━━━━━━━━━━━━━━
+        📝 تفاصيل الحجز:
+        • عدد الأيام: ${daysCount}
+        • أيام الأسبوع: ${weekdays} (${basePrice} ر.س/يوم)
+        • نهاية الأسبوع: ${weekendDays} (${basePrice * weekendMultiplier} ر.س/يوم)
+        ━━━━━━━━━━━━━━
+        💰 المجموع: ${parseInt(totalPrice).toLocaleString()} ر.س`;
+
+                    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+                    window.open(whatsappURL, '_blank');
+
+                    setTimeout(() => {
+                        button.disabled = false;
+                        button.textContent = 'احجز الآن';
+                    }, 2000);
+                }
+
+                // Handle reset
+                function handleReset(event) {
+                    event.preventDefault();
+                    elements.startDate.value = '';
+                    elements.endDate.value = '';
+                    calculateAndDisplayPrice(null, null);
+                }
+
+                // Format date to Arabic format
+                function formatArabicDate(dateString) {
+                    try {
+                        const date = DateTime.fromISO(dateString);
+                        return date.toFormat('dd/MM/yyyy');
+                    } catch (error) {
+                        return dateString;
+                    }
+                }
+
+                // Initialize gallery
+                function initializeGallery() {
+                    const images = document.querySelectorAll('.gallery-image');
+
+                    // Create dots
+                    images.forEach((_, index) => {
+                        const dot = document.createElement('div');
+                        dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                        dot.addEventListener('click', () => changeImage(index - currentImageIndex));
+                        elements.galleryDots.appendChild(dot);
+                    });
+
+                    // Touch handling
+                    let touchStartX = 0;
+                    let touchStartTime = 0;
+
+                    elements.galleryContainer.addEventListener('touchstart', e => {
+                        touchStartX = e.changedTouches[0].screenX;
+                        touchStartTime = Date.now();
+                        stopAutoRotate();
+                    }, { passive: true });
+
+                    elements.galleryContainer.addEventListener('touchend', e => {
+                        const touchEndX = e.changedTouches[0].screenX;
+                        const touchEndTime = Date.now();
+                        const difference = touchStartX - touchEndX;
+                        const timeDifference = touchEndTime - touchStartTime;
+
+                        if (Math.abs(difference) > 50 && timeDifference < 300) {
+                            changeImage(difference > 0 ? 1 : -1);
+                        }
+                        setTimeout(startAutoRotate, 4000);
+                    }, { passive: true });
+
+                    startAutoRotate();
+                }
+
+                // Auto-rotate gallery
+                let autoRotateInterval;
+
+                function startAutoRotate() {
+                    autoRotateInterval = setInterval(() => changeImage(1), 4000);
+                }
+
+                function stopAutoRotate() {
+                    clearInterval(autoRotateInterval);
+                }
+
+                // Change gallery image
+                function changeImage(direction) {
+                    const images = document.querySelectorAll('.gallery-image');
+                    const dots = document.querySelectorAll('.dot');
+
+                    currentImageIndex = (currentImageIndex + direction + images.length) % images.length;
+                    elements.galleryContainer.style.transform = `translateX(${currentImageIndex * -100}%)`;
+
+                    dots.forEach((dot, index) => {
+                        dot.classList.toggle('active', index === currentImageIndex);
+                    });
+                }
+
+                // Initialize everything
+                initializeDateInputs();
+                initializeGallery();
+            }
+
+            // Prevent iOS zoom
+            document.addEventListener('gesturestart', function(e) {
+                e.preventDefault();
+            });
+        </script>
+        </body>
+        </html>
